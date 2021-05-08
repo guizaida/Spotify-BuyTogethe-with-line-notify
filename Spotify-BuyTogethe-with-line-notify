@@ -1,0 +1,44 @@
+import urllib.request as req
+import datetime
+import time
+import bs4
+import requests
+def gettitle(url):
+    localtime = time.strftime("%Y%m%d%H%M",time.localtime())
+    request=req.Request(url, headers={
+        "cookie":"over18=1",
+        "user-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36"
+        })
+    with req.urlopen(request) as response:
+        data=response.read().decode("utf-8")
+    root=bs4.BeautifulSoup(data,"html.parser")
+    titles=root.find_all("div", class_="title")
+    for title in titles:
+        if title.a != None:
+            with open(localtime + ".txt","a",encoding="utf-8") as file:
+                file.write(title.a.string +("\n"))
+url="https://www.ptt.cc/bbs/BuyTogether/index.html"
+gettitle(url)
+def lineNotifyMessage(token,  msg):#函式名稱
+
+    headers = {
+        "Authorization": "Bearer " + token, 
+        "Content-Type" : "application/x-www-form-urlencoded"
+    }
+
+    payload = {'message': msg } #字典
+    r = requests.post("https://notify-api.line.me/api/notify", headers = headers, params = payload)
+
+    return r.status_code #回到r.status_code
+localtime = time.strftime("%Y%m%d%H%M",time.localtime())
+with open(localtime + ".txt","r",encoding="utf-8") as file:
+    data=file.read()
+    print(data)
+    x="Spotify"
+    if x in data:
+        token = '76ZNq3J1np77yikcnETvC1AwJZR7BpinqVyhaFCBZZp'
+        message = '合購版上有新的Spotify團\nhttps://www.ptt.cc/bbs/BuyTogether/index.html'
+        lineNotifyMessage(token, message) #呼叫函式
+        print("yes")
+    else:
+        print("NO")
